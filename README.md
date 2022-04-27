@@ -1,4 +1,4 @@
-# great-expecations-overview
+# great-expectations-overview
 Simple table overview of great expectations runs with filters, pagination and search.
 - 📃Table pagination/filtering/search: https://datatables.net
 - 🎨Layout: https://getbootstrap.com
