@@ -9,6 +9,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato&family=Source+Sans+Pro&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+    <link rel="manifest" href="img/site.webmanifest">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
     <title>Great expectations overview</title>
     <style type='text/css'>
       body {
@@ -41,20 +47,31 @@
       a:hover{
         color: #5af46d;
       }
+
+      #vrt_logo{
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        width: 100px;
+        height: 100px;
+      }
       </style>
 </head>
 <body>
 
-  <!-- Top wave SVG -->
+
+
+<!-- Top wave SVG -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 175"><path fill="#142747" fill-opacity="1" d="M0,160L60,133.3C120,107,240,53,360,42.7C480,32,600,64,720,69.3C840,75,960,53,1080,58.7C1200,64,1320,96,1380,112L1440,128L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path></svg>
+<img id="vrt_logo" src="./img/VRT_logo.svg.png" alt="Logo VRT">
 <div class="container-fluid w-100 m-auto">
   <div class="row">
     <div class="col-12">
-      <h1 class="p-5">Great expecations overview</h1>
+      <h1 class="p-5">Great expectations overview</h1>
     </div>
   </div>
 
-  <div class="row">
+  <div class="row w-100">
     <div class="col-12">
       <div class="w-75 m-auto">
       <table id="logTable" class="table styled-table">
@@ -64,6 +81,12 @@
               <th scope="col">Workflow Name</th>
               <th scope="col">Run</th>
               <th scope="col">Link (latest run)</th>
+            </tr>
+            <tr class="bg-light">
+              <th></th>
+              <th></th>
+              <th></th>
+              <th id="url"></th>
             </tr>
           </thead>
           <tbody>
@@ -78,6 +101,9 @@
             </tr>
             {% endfor %} -->
         
+
+
+
 
 
           <!-- i added dummy data because the for loop wouldn't do anything as i'm working locally -->
@@ -157,6 +183,8 @@
           <!-- End dummy data: stop deleting -->
 
 
+
+
           </tbody>
         </table>
         </div>
@@ -164,17 +192,55 @@
     </div>
   </div>
 
+  
+
   <!-- bottom wave SVG -->
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#142747" fill-opacity="1" d="M0,288L48,272C96,256,192,224,288,197.3C384,171,480,149,576,165.3C672,181,768,235,864,250.7C960,267,1056,245,1152,250.7C1248,256,1344,288,1392,304L1440,320L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
   
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script> -->
-  <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script> -->
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="https://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
   <script>
-    $(document).ready(function() {
-    $('#logTable').DataTable();
-    } );
+  // script used to make the table filterable and searchable.
+  $(document).ready(function() {
+      $('#logTable').DataTable( {
+          initComplete: function () {
+            i = 0;
+              this.api().columns().every( function () {
+                i++;
+                // check if the index of the column is 4 (URL)
+                if (i == 4) {
+                  // break this function and exit, we dont want to filter as this messes up the scaling
+                  return;
+                }
+                else{
+                  // continue and filter the column
+                  var column = this;
+                  var select = $('<select><option value=""></option></select>')
+                      .appendTo( $(column.header()).empty() )
+                      .on( 'change', function () {
+                          var val = $.fn.dataTable.util.escapeRegex(
+                              $(this).val()
+                          );
+                          column
+                              .search( val ? '^'+val+'$' : '', true, true )
+                              .draw();
+                      } );
+                      column.data().unique().sort().each( function ( d, j ) {
+                      select.append( '<option value="'+d+'">'+d+'</option>' )
+                  } );
+                }
+              } );
+          }
+      } );
+      //get log table element
+      var table = $('#logTable').DataTable();
+      // limit the width of the table to the width of the container
+      var tableWidth = $('#logTable').width();
+      $('#logTable').css('width', tableWidth);
+  } );
+
   </script>
 </body>
 </html>
